@@ -26,14 +26,14 @@ class EditTable extends Component {
 
   componentDidMount() {
     const bodyList = this.getHerbalTableBodyRender();
+
     this.setState({ ...this.state, bodyList: [...bodyList] });
   }
 
   componentWillReceiveProps(nextProps) {
     this.props = { ...this.props, ...nextProps };
-    console.log(props, 'editTabl');
-
     const bodyList = this.getHerbalTableBodyRender();
+
     this.setState({ ...this.state, bodyList: [...bodyList] });
   }
 

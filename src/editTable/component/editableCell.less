@@ -15,8 +15,8 @@
 }
 .descContainer {
   &:hover {
-    .herbalEditDelete {
-      background: rgba(102, 102, 102, 0.8);
+    .editDelete {
+      background: rgba(102, 102, 102, 0.2);
       display: block;
       z-index: 200;
     }
@@ -27,15 +27,14 @@
 }
 .deleteDescArea {
   position: absolute;
-  z-index: 1000;
+  z-index: 1;
   &:extend(.streach);
 }
 
 .editDelete {
-  display: none;
   position: absolute;
   &:extend(.streach);
-  z-index: 1;
+  z-index: 1000;
 }
 .editArea {
   padding: 16px 0;

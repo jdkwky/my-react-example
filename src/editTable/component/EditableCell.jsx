@@ -29,27 +29,9 @@ export default class EditTableCell extends React.Component {
     };
   }
 
-  componentDidMount() {
-    // document.body.addEventListener('click', e => {
-    //   console.log(this.state.visiblePopup, 'visiblePopup');
-    //   // console.log(this.state.isPopup, '==============');
-    //   // if (e.target.className === 'ant-popover-inner-content') {
-    //   //   return;
-    //   // }
-    //   // this.setState({
-    //   //   visiblePopup: false,
-    //   //   editing: false
-    //   // });
-    // });
-    // document.querySelector('.EDITFORM').addEventListener('click', e => {
-    //   e.stopPropagation();
-    // });
-  }
+  componentDidMount() {}
 
-  componentWillUnmount() {
-    // document.body.removeEventListener('click');
-    // document.querySelector('.EDITFORM').removeEventListener('click');
-  }
+  componentWillUnmount() {}
 
   handleEditAreaChange = (value, onChange) => {
     onChange && onChange(value);
@@ -59,6 +41,7 @@ export default class EditTableCell extends React.Component {
   };
   handleKeyDown = (e, onKeyDown) => {
     const result = onKeyDown && onKeyDown(e);
+
     if (result) {
       //回车跳转
       this.setState({
@@ -76,15 +59,6 @@ export default class EditTableCell extends React.Component {
   };
 
   handleEditClick = e => {
-    console.log(
-      'handleEditClick',
-      'this.state.editing :',
-      this.state.editing,
-      'this.state.visiblePopup :',
-      this.state.visiblePopup,
-      this.state.isPopup
-    );
-
     this.setState({
       editing: !this.state.editing,
       visiblePopup: !this.state.visiblePopup
@@ -158,20 +132,14 @@ export default class EditTableCell extends React.Component {
           >
             {descArea ? (
               <div
-                onClick={() => {
-                  console.log(this, '==================descArea');
-                  this.handleEditClick;
-                }}
+                onClick={this.handleEditClick}
               >
                 {descArea}
               </div>
             ) : (
               <div
                 className={`${styles.placeholder} text-rows-two`}
-                onClick={() => {
-                  console.log(this, '==================popoverDescArea');
-                  this.handleEditClick();
-                }}
+                onClick={this.handleEditClick}
               >
                 {placeholder}
               </div>
@@ -197,7 +165,7 @@ export default class EditTableCell extends React.Component {
             </div>
             <div className={styles.editDelete}>
               <div className={styles.editDeleteIcon} onClick={this.handleDeleteClick}>
-                <Icon type="table-delete" className={styles.deleteIcon} />
+                <Icon type="close" className={styles.deleteIcon} />
               </div>
             </div>
           </div>
@@ -206,11 +174,7 @@ export default class EditTableCell extends React.Component {
         descRender = (
           <div
             className={`${styles.placeholder} text-rows-two`}
-            onClick={() => {
-              console.log(this, 'is delete');
-
-              this.handleEditClick();
-            }}
+            onClick={this.handleEditClick}
           >
             {placeholder}
           </div>
@@ -220,20 +184,14 @@ export default class EditTableCell extends React.Component {
       descRender = descArea ? (
         <div
           className={styles.herbalDescArea}
-          onClick={() => {
-            console.log(this, '==================descAreaRender');
-            this.handleEditClick();
-          }}
+          onClick={this.handleEditClick}
         >
           {descArea}
         </div>
       ) : (
         <div
           className={`${styles.placeholder} text-rows-two`}
-          onClick={() => {
-            console.log(this, '==================descAreaRender');
-            this.handleEditClick();
-          }}
+          onClick={this.handleEditClick}
         >
           {placeholder}
         </div>
