@@ -1,0 +1,79 @@
+.streach {
+  width: 100%;
+  height: 100%;
+}
+.placeholder {
+  &:extend(.streach);
+  color: #cccccc;
+}
+.container {
+  &:extend(.streach);
+}
+.descContainer {
+  &:extend(.streach);
+  position: relative;
+}
+.descContainer {
+  &:hover {
+    .herbalEditDelete {
+      background: rgba(102, 102, 102, 0.8);
+      display: block;
+      z-index: 200;
+    }
+    .deleteDescArea {
+      z-index: 100;
+    }
+  }
+}
+.deleteDescArea {
+  position: absolute;
+  z-index: 1000;
+  &:extend(.streach);
+}
+
+.editDelete {
+  display: none;
+  position: absolute;
+  &:extend(.streach);
+  z-index: 1;
+}
+.editArea {
+  padding: 16px 0;
+}
+.deleteIcon {
+  color: #999999;
+  position: absolute;
+  top: 1px;
+  left: 1px;
+}
+.editDeleteIcon {
+  width: @iconContainer;
+  height: @iconContainer;
+  border-radius: @iconContainer / 2;
+  background: #b9b9b9;
+  position: absolute;
+  right: 5px;
+  top: 50%;
+  margin-top: -@iconContainer / 2;
+  cursor: pointer;
+  &:hover {
+    .deleteIcon {
+      color: #ff0000;
+    }
+  }
+}
+.popOverWidth {
+  min-width: 260px;
+}
+.popEditArea {
+  position: relative;
+  padding-right: 20px;
+}
+.popDeleteIcon {
+  position: absolute;
+  top: -8px;
+  right: -12px;
+  color: #ff0000 !important;
+}
+@editHeight: 30px;
+@iconContainer: 16px;
