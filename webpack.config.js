@@ -66,7 +66,8 @@ module.exports = {
   resolve: {
     extensions: ['.js', '.jsx'],
     alias: {
-      editTable: __dirname + '/src/editTable'
+      editTable: __dirname + '/src/editTable',
+      timeline: __dirname + '/src/timeline'
     }
   },
   plugins: [
