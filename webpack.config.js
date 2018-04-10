@@ -68,7 +68,8 @@ module.exports = {
     alias: {
       editTable: __dirname + '/src/editTable',
       timeline: __dirname + '/src/timeline',
-      main: __dirname + '/src/main'
+      main: __dirname + '/src/main',
+      waterfall: __dirname + '/src/waterfall'
     }
   },
   plugins: [

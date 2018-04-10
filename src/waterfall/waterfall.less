@@ -1,0 +1,16 @@
+:global {
+    .water {
+        display: flex;
+        justify-content: start;
+        overflow: auto;
+        &-content {
+            width: calc(100% / 4);
+            display: flex;
+            flex-direction: column;
+            padding: 0 10px;
+        }
+        &-item {
+            margin: 5px 0;
+        }
+    }
+}
