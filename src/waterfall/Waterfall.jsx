@@ -1,9 +1,11 @@
 import React, { Component } from 'react';
 import styles from './waterfall.less';
 import dataList from './data';
+
 class Waterfall extends Component {
   constructor(props) {
     super(props);
+    this.dataList = dataList;
     this.state = {
       col1: [],
       col2: [],
@@ -20,13 +22,13 @@ class Waterfall extends Component {
       if (numsize - prev > 1) {
         while (nonius < j) {
           for (; nonius < j; j--) {
-            if (array[j] < flag) {
+            if (array[j].data < flag.data) {
               array[nonius++] = array[j]; //a[i] = a[j]; i += 1;
               break;
             }
           }
           for (; nonius < j; nonius++) {
-            if (array[nonius] > flag) {
+            if (array[nonius].data > flag.data) {
               array[j--] = array[nonius];
               break;
             }
@@ -38,6 +40,17 @@ class Waterfall extends Component {
       }
     }
     sort(0, array.length);
+
+    // for (let i = 0; i < array.length; i++) {
+    //   for (let j = i + 1; j < array.length; j++) {
+    //     if (array[i].data > array[j].data) {
+    //       let temp = array[i];
+    //       array[i] = array[j];
+    //       array[j] == temp;
+    //     }
+    //   }
+    // }
+
     return array;
   };
 
@@ -63,12 +76,12 @@ class Waterfall extends Component {
         h2 += c2.height;
       });
       let h3 = 0;
-      col2.forEach(c3 => {
+      col3.forEach(c3 => {
         h3 += c3.height;
       });
       let h4 = 0;
       col4.forEach(c4 => {
-        h1 += c4.height;
+        h4 += c4.height;
       });
       // h1 h2 h3  h4  排序 快排
 
@@ -80,33 +93,32 @@ class Waterfall extends Component {
       ];
 
       const rankList = this.quickSort(tempList);
-      rankList.forEach(list => {
-        switch (list.refer) {
-          case 'col1':
-            if (dataList.length > 0) {
-              col1.push(dataList.splice(0, 1)[0]);
-            }
-            break;
-          case 'col2':
-            if (dataList.length > 0) {
-              col2.push(dataList.splice(0, 1)[0]);
-            }
-            break;
-          case 'col3':
-            if (dataList.length > 0) {
-              col3.push(dataList.splice(0, 1)[0]);
-            }
-            break;
-          case 'col4':
-            if (dataList.length > 0) {
-              col4.push(dataList.splice(0, 1)[0]);
-            }
-            break;
-          default:
-            break;
-        }
-      });
+
+      // 给最小的赋值
+      switch (rankList[0].refer) {
+        case 'col1':
+          if (dataList.length > 0) {
+            col1.push(dataList.splice(0, 1)[0]);
+          }
+          break;
+        case 'col2':
+          if (dataList.length > 0) {
+            col2.push(dataList.splice(0, 1)[0]);
+          }
+          break;
+        case 'col3':
+          if (dataList.length > 0) {
+            col3.push(dataList.splice(0, 1)[0]);
+          }
+          break;
+        case 'col4':
+          if (dataList.length > 0) {
+            col4.push(dataList.splice(0, 1)[0]);
+          }
+          break;
+      }
     }
+
     if (dataList.length > 0) {
       // 说明还有 值
       return this.calcHeight(dataList, templateState);
@@ -116,7 +128,9 @@ class Waterfall extends Component {
   };
 
   componentDidMount() {
-    const data = this.calcHeight(dataList, this.state);
+    const data = this.calcHeight(this.dataList, this.state);
+    console.log(data, this.dataList);
+
     this.setState((preState, props) => ({ ...preState, ...data }));
   }
 
