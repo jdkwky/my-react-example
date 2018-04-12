@@ -45,7 +45,9 @@ class IndexPage extends Component {
           <Breadcrumb style={{ padding: '10px 50px' }}>
             <Breadcrumb.Item>{breadcrumb}</Breadcrumb.Item>
           </Breadcrumb>
-          <div className={styles.realContent}>{component}</div>
+          <div id="content" className={styles.realContent}>
+            {component}
+          </div>
         </div>
         <div className={styles.footer}>wky &copy; 2018-03-26</div>
       </div>

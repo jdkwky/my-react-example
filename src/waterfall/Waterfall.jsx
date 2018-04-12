@@ -1,11 +1,10 @@
 import React, { Component } from 'react';
 import styles from './waterfall.less';
-import dataList from './data';
+import list from './data';
 
 class Waterfall extends Component {
   constructor(props) {
     super(props);
-    this.dataList = dataList;
     this.state = {
       col1: [],
       col2: [],
@@ -128,10 +127,31 @@ class Waterfall extends Component {
   };
 
   componentDidMount() {
-    const data = this.calcHeight(this.dataList, this.state);
-    console.log(data, this.dataList);
+    // 复制一份数组信息 因为数据只有在最开始的时候会加载 后续组件切换重复渲染时会把原始数据弄丢所以复制一份
+    const tempList = [...list];
+    const data = this.calcHeight(tempList, this.state);
 
+    const $content = document.getElementById('content');
+    console.log('====================================');
+    console.log($content);
+    console.log('====================================');
+    $content.addEventListener('onMouseWheel', event => {
+      console.log('====================================');
+      console.log(event, 'onMouseWheel');
+      console.log('====================================');
+    });
+    $content.addEventListener('onScroll', event => {
+      console.log('====================================');
+      console.log(event, 'onScroll');
+      console.log('====================================');
+    });
     this.setState((preState, props) => ({ ...preState, ...data }));
+  }
+
+  componentWillUnmount() {
+    const $content = document.getElementById('content');
+    $content.removeEventListener('omMouseWheel');
+    $content.removeEventListener('onScroll');
   }
 
   render() {
@@ -141,22 +161,38 @@ class Waterfall extends Component {
       <div className="water">
         <div className="water-content">
           {col1.map((value, index) => (
-            <div key={`col1-${index}`} className="water-item" style={{ height: value.height, background: 'green' }} />
+            <div
+              key={`col1-${index}`}
+              className={`water-item ${styles[`content${parseInt(Math.random() * 4)}`]}`}
+              style={{ height: value.height }}
+            />
           ))}
         </div>
         <div className="water-content">
           {col2.map((value, index) => (
-            <div key={`col2-${index}`} className="water-item" style={{ height: value.height, background: 'blue' }} />
+            <div
+              key={`col2-${index}`}
+              className={`water-item ${styles[`content${parseInt(Math.random() * 4)}`]}`}
+              style={{ height: value.height }}
+            />
           ))}
         </div>
         <div className="water-content">
           {col3.map((value, index) => (
-            <div key={`col3-${index}`} className="water-item" style={{ height: value.height, background: 'red' }} />
+            <div
+              key={`col3-${index}`}
+              className={`water-item ${styles[`content${parseInt(Math.random() * 4)}`]}`}
+              style={{ height: value.height }}
+            />
           ))}
         </div>
         <div className="water-content">
           {col1.map((value, index) => (
-            <div key={`col4-${index}`} className="water-item" style={{ height: value.height, background: 'yellow' }} />
+            <div
+              key={`col4-${index}`}
+              className={`water-item ${styles[`content${parseInt(Math.random() * 4)}`]}`}
+              style={{ height: value.height }}
+            />
           ))}
         </div>
       </div>
