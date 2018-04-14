@@ -22,6 +22,7 @@ class IndexPage extends Component {
   handleClick = ({ item, key, keypath }) => {
     this.setState((preState, props) => ({ ...preState, menu: key }));
   };
+
   render() {
     const { menu } = this.state;
     const { component, breadcrumb } = keyMap[menu];

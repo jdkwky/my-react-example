@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import styles from './waterfall.less';
 import list from './data';
+import axios from 'axios';
 
 class Waterfall extends Component {
   constructor(props) {
@@ -53,7 +54,12 @@ class Waterfall extends Component {
     return array;
   };
 
-  calcHeight = (dataList, templateState) => {
+  // 计算长宽比例
+  calcRealHeight(eachWidth, width, height) {
+    return eachWidth / width * height;
+  }
+
+  calcHeight = (dataList, templateState, eachWidth) => {
     const { col1, col2, col3, col4 } = templateState;
 
     if (col1.length === 0 && col2.length === 0 && col3.length === 0 && col4.length === 0) {
@@ -120,80 +126,76 @@ class Waterfall extends Component {
 
     if (dataList.length > 0) {
       // 说明还有 值
-      return this.calcHeight(dataList, templateState);
+      return this.calcHeight(dataList, templateState, eachWidth);
     } else {
       return templateState;
     }
   };
 
   componentDidMount() {
+    const $waterContent = document.getElementById('waterContent');
+    const eachWidth = $waterContent.clientWidth / 4 - 20;
+    console.log('~~~~~~~~~~~~~~~~~');
+    console.log(eachWidth, waterContent, $waterContent.clientWidth);
+
+    console.log('~~~~~~~~~~~~~~~~~');
+
     // 复制一份数组信息 因为数据只有在最开始的时候会加载 后续组件切换重复渲染时会把原始数据弄丢所以复制一份
-    const tempList = [...list];
-    const data = this.calcHeight(tempList, this.state);
+    axios
+      .get(
+        'search/acjson?tn=resultjson_com&ipn=rj&ct=201326592&is=&fp=result&queryWord=%E4%BA%8C%E6%AC%A1%E5%85%83&cl=2&lm=-1&ie=utf-8&oe=utf-8&adpicid=&st=-1&z=&ic=0&word=%E4%BA%8C%E6%AC%A1%E5%85%83&s=&se=&tab=&width=&height=&face=0&istype=2&qc=&nc=1&fr=&pn=30&rn=30&gsm=1e&1523709490696='
+      )
+      .then(list => {
+        if (list.data && list.data.data) {
+          const tempList = list.data.data
+            .filter(value => value.height)
+            .map(value => ({ ...value, height: eachWidth * value.height / value.width }));
+          const data = this.calcHeight(tempList, this.state, eachWidth);
 
-    const $content = document.getElementById('content');
-    console.log('====================================');
-    console.log($content);
-    console.log('====================================');
-    $content.addEventListener('onMouseWheel', event => {
-      console.log('====================================');
-      console.log(event, 'onMouseWheel');
-      console.log('====================================');
-    });
-    $content.addEventListener('onScroll', event => {
-      console.log('====================================');
-      console.log(event, 'onScroll');
-      console.log('====================================');
-    });
-    this.setState((preState, props) => ({ ...preState, ...data }));
+          this.setState((preState, props) => ({ ...preState, ...data }));
+        }
+      })
+      .catch(error => {
+        console.log(error);
+      });
   }
 
-  componentWillUnmount() {
-    const $content = document.getElementById('content');
-    $content.removeEventListener('omMouseWheel');
-    $content.removeEventListener('onScroll');
-  }
+  handleScroll = event => {};
 
   render() {
     const { col1, col2, col3, col4 } = this.state;
 
     return (
-      <div className="water">
-        <div className="water-content">
-          {col1.map((value, index) => (
-            <div
-              key={`col1-${index}`}
-              className={`water-item ${styles[`content${parseInt(Math.random() * 4)}`]}`}
-              style={{ height: value.height }}
-            />
-          ))}
-        </div>
-        <div className="water-content">
-          {col2.map((value, index) => (
-            <div
-              key={`col2-${index}`}
-              className={`water-item ${styles[`content${parseInt(Math.random() * 4)}`]}`}
-              style={{ height: value.height }}
-            />
-          ))}
-        </div>
-        <div className="water-content">
-          {col3.map((value, index) => (
-            <div
-              key={`col3-${index}`}
-              className={`water-item ${styles[`content${parseInt(Math.random() * 4)}`]}`}
-              style={{ height: value.height }}
-            />
-          ))}
-        </div>
-        <div className="water-content">
-          {col1.map((value, index) => (
-            <div
-              key={`col4-${index}`}
-              className={`water-item ${styles[`content${parseInt(Math.random() * 4)}`]}`}
-              style={{ height: value.height }}
-            />
-          ))}
+      <div id="waterContent" className="waterScroll" onScroll={this.handleScroll}>
+        <div className="water">
+          <div className="water-content">
+            {col1.map((value, index) => (
+              <div key={`col1-${index}`} className={`water-item `} style={{ height: value.height }}>
+                <img src={value.middleURL} title={value.fromPageTitleEnc} style={{ width: '100%', height: '100%' }} />
+              </div>
+            ))}
+          </div>
+          <div className="water-content">
+            {col2.map((value, index) => (
+              <div key={`col2-${index}`} className={`water-item`} style={{ height: value.height }}>
+                <img src={value.middleURL} title={value.fromPageTitleEnc} style={{ width: '100%', height: '100%' }} />
+              </div>
+            ))}
+          </div>
+          <div className="water-content">
+            {col3.map((value, index) => (
+              <div key={`col3-${index}`} className={`water-item `} style={{ height: value.height }}>
+                <img src={value.middleURL} title={value.fromPageTitleEnc} style={{ width: '100%', height: '100%' }} />
+              </div>
+            ))}
+          </div>
+          <div className="water-content">
+            {col4.map((value, index) => (
+              <div key={`col4-${index}`} className={`water-item `} style={{ height: value.height }}>
+                <img title={value.fromPageTitleEnc} src={value.middleURL} style={{ width: '100%', height: '100%' }} />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     );

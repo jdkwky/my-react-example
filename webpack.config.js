@@ -10,8 +10,15 @@ module.exports = {
   },
   devServer: {
     contentBase: './public',
+    publicPath: '/',
     historyApiFallback: true,
-    inline: true
+    inline: true,
+    proxy: {
+      '/search/*': {
+        target: 'https://image.baidu.com',
+        changeOrigin: true
+      }
+    }
   },
   module: {
     rules: [

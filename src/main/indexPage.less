@@ -15,6 +15,22 @@
         margin: 0;
         padding: 0;
     }
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+    ::-webkit-scrollbar-button {
+        display: none;
+    }
+    ::-webkit-scrollbar-track {
+        border: white;
+        box-shadow: 0 1px 10px rgba(0, 0, 0, 0.1) inset;
+        background: rgba(255, 255, 255, 0.4);
+    }
+    ::-webkit-scrollbar-thumb {
+        background: rgba(179, 182, 184, 0.4);
+        border-radius: 4px;
+    }
 }
 
 .content {
@@ -28,10 +44,9 @@
 .realContent {
     background: rgb(255, 255, 255);
     padding: 24px;
-    height: 100%;
+    height: ~'calc(100% - 40px)';
     border-radius: 4px;
     box-shadow: 0 1px 20px rgba(0, 0, 0, 0.2);
-    overflow: auto;
 }
 
 .footer {
