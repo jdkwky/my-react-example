@@ -10,7 +10,8 @@ class Waterfall extends Component {
       col1: [],
       col2: [],
       col3: [],
-      col4: []
+      col4: [],
+      rn: 30
     };
   }
 
@@ -54,12 +55,7 @@ class Waterfall extends Component {
     return array;
   };
 
-  // 计算长宽比例
-  calcRealHeight(eachWidth, width, height) {
-    return eachWidth / width * height;
-  }
-
-  calcHeight = (dataList, templateState, eachWidth) => {
+  calcHeight = (dataList, templateState) => {
     const { col1, col2, col3, col4 } = templateState;
 
     if (col1.length === 0 && col2.length === 0 && col3.length === 0 && col4.length === 0) {
@@ -126,7 +122,7 @@ class Waterfall extends Component {
 
     if (dataList.length > 0) {
       // 说明还有 值
-      return this.calcHeight(dataList, templateState, eachWidth);
+      return this.calcHeight(dataList, templateState);
     } else {
       return templateState;
     }
@@ -135,32 +131,88 @@ class Waterfall extends Component {
   componentDidMount() {
     const $waterContent = document.getElementById('waterContent');
     const eachWidth = $waterContent.clientWidth / 4 - 20;
-    console.log('~~~~~~~~~~~~~~~~~');
-    console.log(eachWidth, waterContent, $waterContent.clientWidth);
-
-    console.log('~~~~~~~~~~~~~~~~~');
-
+    const { rn = 30 } = this.state;
     // 复制一份数组信息 因为数据只有在最开始的时候会加载 后续组件切换重复渲染时会把原始数据弄丢所以复制一份
+    this.getData(rn, eachWidth);
+
+    this.setState((preState, props) => ({ ...preState, eachWidth }));
+  }
+
+  getData = (rn, eachWidth) => {
     axios
       .get(
-        'search/acjson?tn=resultjson_com&ipn=rj&ct=201326592&is=&fp=result&queryWord=%E4%BA%8C%E6%AC%A1%E5%85%83&cl=2&lm=-1&ie=utf-8&oe=utf-8&adpicid=&st=-1&z=&ic=0&word=%E4%BA%8C%E6%AC%A1%E5%85%83&s=&se=&tab=&width=&height=&face=0&istype=2&qc=&nc=1&fr=&pn=30&rn=30&gsm=1e&1523709490696='
+        `search/acjson?tn=resultjson_com&ipn=rj&ct=201326592&is=&fp=result&queryWord=%E4%BA%8C%E6%AC%A1%E5%85%83&cl=2&lm=-1&ie=utf-8&oe=utf-8&adpicid=&st=-1&z=&ic=0&word=%E4%BA%8C%E6%AC%A1%E5%85%83&s=&se=&tab=&width=&height=&face=0&istype=2&qc=&nc=1&fr=&pn=30&rn=${rn}&gsm=1e&1523709490696=`
       )
       .then(list => {
         if (list.data && list.data.data) {
           const tempList = list.data.data
             .filter(value => value.height)
             .map(value => ({ ...value, height: eachWidth * value.height / value.width }));
-          const data = this.calcHeight(tempList, this.state, eachWidth);
+          const data = this.calcHeight(tempList, this.state);
+          const { col1, col2, col3, col4 } = data;
+          let h1 = 0;
+          col1.forEach(c1 => {
+            h1 += c1.height;
+          });
+          let h2 = 0;
+          col2.forEach(c2 => {
+            h2 += c2.height;
+          });
+          let h3 = 0;
+          col3.forEach(c3 => {
+            h3 += c3.height;
+          });
+          let h4 = 0;
+          col4.forEach(c4 => {
+            h4 += c4.height;
+          });
+          // h1 h2 h3  h4  排序 快排
 
-          this.setState((preState, props) => ({ ...preState, ...data }));
+          const sortList = [
+            { data: h1, refer: 'col1' },
+            { data: h2, refer: 'col2' },
+            { data: h3, refer: 'col3' },
+            { data: h4, refer: 'col4' }
+          ];
+
+          const rankList = this.quickSort(sortList);
+          // 获取最小高度
+          const minHeight = rankList[0].data;
+          this.setState((preState, props) => ({ ...preState, ...data, minHeight }));
         }
       })
       .catch(error => {
         console.log(error);
       });
-  }
+  };
 
-  handleScroll = event => {};
+  debounce = (func, wait, event) => {
+    var timeout, result;
+    console.log(event);
+
+    return () => {
+      var context = this;
+      var args = arguments;
+      console.log(this, arguments);
+
+      clearTimeout(timeout);
+      timeout = setTimeout(function() {
+        result = func.apply(event);
+      }, wait);
+
+      return result;
+    };
+  };
+
+  handleScroll = event => {
+    const { scrollTop } = event.target;
+    const { col1, col2, col3, col4, minHeight, eachWidth, rn } = this.state;
+
+    if (scrollTop + 100 >= minHeight) {
+      this.getData(rn + 30, eachWidth);
+      this.setState((preState, props) => ({ ...preState, rn: rn + 30 }));
+    }
+  };
 
   render() {
     const { col1, col2, col3, col4 } = this.state;
