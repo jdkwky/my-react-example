@@ -11,7 +11,9 @@ class Waterfall extends Component {
       col2: [],
       col3: [],
       col4: [],
-      rn: 30
+      rn: 30,
+      prev: +new Date(),
+      height: 1000
     };
   }
 
@@ -131,6 +133,8 @@ class Waterfall extends Component {
   componentDidMount() {
     const $waterContent = document.getElementById('waterContent');
     const eachWidth = $waterContent.clientWidth / 4 - 20;
+    const height = document.body.clientHeight;
+
     const { rn = 30 } = this.state;
     // 复制一份数组信息 因为数据只有在最开始的时候会加载 后续组件切换重复渲染时会把原始数据弄丢所以复制一份
     this.getData(rn, eachWidth);
@@ -149,36 +153,8 @@ class Waterfall extends Component {
             .filter(value => value.height)
             .map(value => ({ ...value, height: eachWidth * value.height / value.width }));
           const data = this.calcHeight(tempList, this.state);
-          const { col1, col2, col3, col4 } = data;
-          let h1 = 0;
-          col1.forEach(c1 => {
-            h1 += c1.height;
-          });
-          let h2 = 0;
-          col2.forEach(c2 => {
-            h2 += c2.height;
-          });
-          let h3 = 0;
-          col3.forEach(c3 => {
-            h3 += c3.height;
-          });
-          let h4 = 0;
-          col4.forEach(c4 => {
-            h4 += c4.height;
-          });
-          // h1 h2 h3  h4  排序 快排
 
-          const sortList = [
-            { data: h1, refer: 'col1' },
-            { data: h2, refer: 'col2' },
-            { data: h3, refer: 'col3' },
-            { data: h4, refer: 'col4' }
-          ];
-
-          const rankList = this.quickSort(sortList);
-          // 获取最小高度
-          const minHeight = rankList[0].data;
-          this.setState((preState, props) => ({ ...preState, ...data, minHeight }));
+          this.setState((preState, props) => ({ ...preState, ...data }));
         }
       })
       .catch(error => {
@@ -188,12 +164,10 @@ class Waterfall extends Component {
 
   debounce = (func, wait, event) => {
     var timeout, result;
-    console.log(event);
 
     return () => {
       var context = this;
       var args = arguments;
-      console.log(this, arguments);
 
       clearTimeout(timeout);
       timeout = setTimeout(function() {
@@ -204,11 +178,20 @@ class Waterfall extends Component {
     };
   };
 
-  handleScroll = event => {
-    const { scrollTop } = event.target;
-    const { col1, col2, col3, col4, minHeight, eachWidth, rn } = this.state;
+  throttle = event => {
+    //
+    const { prev } = this.state;
+    const nowDate = +new Date();
 
-    if (scrollTop + 100 >= minHeight) {
+    if (nowDate - prev >= 500) {
+      this.handleScroll(event);
+      this.setState((preState, props) => ({ ...preState, prev: +new Date() }));
+    }
+  };
+  handleScroll = event => {
+    const { scrollTop, scrollHeight } = event.target;
+    const { col1, col2, col3, col4, eachWidth, rn, height } = this.state;
+    if (scrollTop + height + 100 >= scrollHeight) {
       this.getData(rn + 30, eachWidth);
       this.setState((preState, props) => ({ ...preState, rn: rn + 30 }));
     }
@@ -218,7 +201,7 @@ class Waterfall extends Component {
     const { col1, col2, col3, col4 } = this.state;
 
     return (
-      <div id="waterContent" className="waterScroll" onScroll={this.handleScroll}>
+      <div id="waterContent" className="waterScroll" onScroll={this.throttle}>
         <div className="water">
           <div className="water-content">
             {col1.map((value, index) => (
