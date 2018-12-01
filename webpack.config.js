@@ -76,7 +76,8 @@ module.exports = {
       editTable: __dirname + '/src/editTable',
       timeline: __dirname + '/src/timeline',
       main: __dirname + '/src/main',
-      waterfall: __dirname + '/src/waterfall'
+      waterfall: __dirname + '/src/waterfall',
+      canvas: __dirname + '/src/canvas' 
     }
   },
   plugins: [
