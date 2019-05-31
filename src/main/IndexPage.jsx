@@ -5,13 +5,16 @@ import EditTableDemo from 'editTable/EditTableDemo';
 import TimelineDemo from 'timeline/TimelineDemo';
 import Waterfall from 'waterfall/Waterfall';
 import Canvas from 'canvas/Canvas';
+import Event from 'test/event/Event';
+
 import styles from './indexPage.less';
 
 const keyMap = {
   editTable: { component: <EditTableDemo />, breadcrumb: 'editTable' },
   timeline: { component: <TimelineDemo />, breadcrumb: 'timeline' },
   waterfall: { component: <Waterfall />, breadcrumb: 'waterfall' },
-  canvas: { component: <Canvas /> ,breakdcrumb: 'canvas'}
+  canvas: { component: <Canvas /> ,breakdcrumb: 'canvas'},
+  event:{ component:<Event></Event>,breadcrumb:'events test' }
 };
 class IndexPage extends Component {
   constructor(props) {
@@ -43,6 +46,7 @@ class IndexPage extends Component {
             <Menu.Item key="timeline">可点击时间轴</Menu.Item>
             <Menu.Item key="waterfall">瀑布流</Menu.Item>
             <Menu.Item key="canvas">canvas画布</Menu.Item>
+            <Menu.Item key="event">event test</Menu.Item>
           </Menu>
         </div>
         <div className={styles.content}>

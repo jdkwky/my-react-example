@@ -162,19 +162,27 @@ class Waterfall extends Component {
       });
   };
 
-  debounce = (func, wait, event) => {
+  debounce = (func, wait) => {
     var timeout, result;
+    const _this = this;
+    
+    return (event) => {
 
-    return () => {
       var context = this;
-      var args = arguments;
-
-      clearTimeout(timeout);
+      
+      event.persist();
+      
+      let args = event; 
+      
+      if(timeout) {
+        clearTimeout(timeout);
+        timeout = null;
+        return ;
+      }
       timeout = setTimeout(function() {
-        result = func.apply(event);
+        func.call(_this, args);
+        timeout = null;
       }, wait);
-
-      return result;
     };
   };
 
@@ -201,7 +209,7 @@ class Waterfall extends Component {
     const { col1, col2, col3, col4 } = this.state;
 
     return (
-      <div id="waterContent" className="waterScroll" onScroll={this.throttle}>
+      <div id="waterContent" className="waterScroll" onScroll={this.debounce(this.handleScroll, 500)}>
         <div className="water">
           <div className="water-content">
             {col1.map((value, index) => (

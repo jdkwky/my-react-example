@@ -95,3 +95,23 @@ NODE_PATH = XXX\Node\nodejs
 PATH = %NODE_PATH%\;%NODE_PATH%\node_modules;%NODE_PATH%\node_global;
 
 
+#### 盲点
+一、React事件机制 
+1.  与VUE不同之处： VUE中的事件是在模板编译的时候直接添加到dom元素上的，而react中并不是这样，react中的事件机制比较复杂，react实现了一套能兼容所有平台的事件机制
+
+> 参考文档： https://juejin.im/post/5bdf0741e51d456b8e1d60be#%E4%BE%8B%E5%AD%90debug
+
+
+
+
+
+#### 工具类 
+1. 多边形绘制工具
+2. 音频绘制工具
+
+
+
+
+
+
+
