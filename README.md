@@ -108,6 +108,8 @@ PATH = %NODE_PATH%\;%NODE_PATH%\node_modules;%NODE_PATH%\node_global;
 #### 工具类 
 1. 多边形绘制工具
 2. 音频绘制工具
+3. 图片放大缩小功能
+4. 增加一些常用的正则表达式
 
 
 

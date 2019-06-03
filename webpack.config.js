@@ -93,7 +93,8 @@ module.exports = {
       main: __dirname + "/src/main",
       waterfall: __dirname + "/src/waterfall",
       canvas: __dirname + "/src/canvas",
-      test: __dirname + "/src/test"
+      test: __dirname + "/src/test",
+      utils: __dirname + "/src/utils"
     }
   },
   plugins: [

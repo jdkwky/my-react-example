@@ -6,7 +6,9 @@ import TimelineDemo from 'timeline/TimelineDemo';
 import Waterfall from 'waterfall/Waterfall';
 import Canvas from 'canvas/Canvas';
 import Event from 'test/event/Event';
-import ImageCanvasDemo from 'canvas/image/Index'
+import ImageCanvasDemo from 'canvas/image/Index';
+import UtilDemo from 'utils/UtilDemo';
+
 
 import styles from './indexPage.less';
 
@@ -15,8 +17,9 @@ const keyMap = {
   timeline: { component: <TimelineDemo />, breadcrumb: 'timeline' , name: '自定义时间轴' },
   waterfall: { component: <Waterfall />, breadcrumb: 'waterfall' , name :'瀑布流'},
   canvas: { component: <Canvas /> ,breakdcrumb: 'canvas' , name: 'canvas画布'},
-  event:{ component:<Event></Event>,breadcrumb:'events test' , name: 'react画布' } ,
-  imageCanvas : { component: <ImageCanvasDemo /> , breakdcrumb: 'image canvas' , name: '显示图片画布' }
+  event:{ component:<Event></Event>,breadcrumb:'events test' , name: 'react事件' } ,
+  imageCanvas : { component: <ImageCanvasDemo /> , breakdcrumb: 'image canvas' , name: '显示图片画布' },
+  util: { component: <UtilDemo /> , breakdcrumb:'util demo', name:'工具类代码' }
 };
 class IndexPage extends Component {
   constructor(props) {
