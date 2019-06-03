@@ -15,7 +15,6 @@ const regexList = [
     }
 ]
 
-
 export default regexList;
 
 
