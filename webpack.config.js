@@ -69,7 +69,19 @@ module.exports = {
           }
         ],
         exclude: /src/ //那些文件需要用上述loader
-      }
+      },
+      {
+          test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
+          use: [
+              {
+                  loader: 'url-loader',
+                  options: {
+                      limit: 10000,
+                      outputPath: 'public/img'
+                  }
+              }
+          ]
+      },
     ]
   },
 

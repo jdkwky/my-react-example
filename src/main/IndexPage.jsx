@@ -6,15 +6,17 @@ import TimelineDemo from 'timeline/TimelineDemo';
 import Waterfall from 'waterfall/Waterfall';
 import Canvas from 'canvas/Canvas';
 import Event from 'test/event/Event';
+import ImageCanvasDemo from 'canvas/image/Index'
 
 import styles from './indexPage.less';
 
 const keyMap = {
-  editTable: { component: <EditTableDemo />, breadcrumb: 'editTable' },
-  timeline: { component: <TimelineDemo />, breadcrumb: 'timeline' },
-  waterfall: { component: <Waterfall />, breadcrumb: 'waterfall' },
-  canvas: { component: <Canvas /> ,breakdcrumb: 'canvas'},
-  event:{ component:<Event></Event>,breadcrumb:'events test' }
+  editTable: { component: <EditTableDemo />, breadcrumb: 'editTable' , name: '可编辑表格' },
+  timeline: { component: <TimelineDemo />, breadcrumb: 'timeline' , name: '自定义时间轴' },
+  waterfall: { component: <Waterfall />, breadcrumb: 'waterfall' , name :'瀑布流'},
+  canvas: { component: <Canvas /> ,breakdcrumb: 'canvas' , name: 'canvas画布'},
+  event:{ component:<Event></Event>,breadcrumb:'events test' , name: 'react画布' } ,
+  imageCanvas : { component: <ImageCanvasDemo /> , breakdcrumb: 'image canvas' , name: '显示图片画布' }
 };
 class IndexPage extends Component {
   constructor(props) {
@@ -26,7 +28,21 @@ class IndexPage extends Component {
 
   handleClick = ({ item, key, keypath }) => {
     this.setState((preState, props) => ({ ...preState, menu: key }));
-  };
+  }
+
+  menuItemRender = () => {
+    const menuItemList = []; 
+    for(let item in keyMap){
+      if(item) {
+        menuItemList.push(
+          <Menu.Item key={ item }>
+              { keyMap[item].name }
+          </Menu.Item>
+        );
+      }
+    }
+    return menuItemList;
+  }
 
   render() {
     const { menu } = this.state;
@@ -42,11 +58,7 @@ class IndexPage extends Component {
             style={{ lineHeight: '64px' }}
             onClick={this.handleClick}
           >
-            <Menu.Item key="editTable">可编辑表格</Menu.Item>
-            <Menu.Item key="timeline">可点击时间轴</Menu.Item>
-            <Menu.Item key="waterfall">瀑布流</Menu.Item>
-            <Menu.Item key="canvas">canvas画布</Menu.Item>
-            <Menu.Item key="event">event test</Menu.Item>
+            { this.menuItemRender() }
           </Menu>
         </div>
         <div className={styles.content}>
