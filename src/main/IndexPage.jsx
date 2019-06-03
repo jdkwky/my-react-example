@@ -25,7 +25,7 @@ class IndexPage extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      menu: 'editTable' //默认是可编辑表格
+      menu: 'canvas' //默认是可编辑表格
     };
   }
 
@@ -57,7 +57,7 @@ class IndexPage extends Component {
           <Menu
             theme="dark"
             mode="horizontal"
-            defaultSelectedKeys={['editTable']}
+            defaultSelectedKeys={[this.state.menu]}
             style={{ lineHeight: '64px' }}
             onClick={this.handleClick}
           >

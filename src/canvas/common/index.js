@@ -376,7 +376,7 @@ class Polygon extends Canvas {
         this.CHECKEDSC = 'rgba(239,53,62,1)'; // 选中描边色
         this.ALPHA = 0.2; // 默认透明度
         this.CALPHA = 0.5; // 选中透明度
-        this.FILLTEXTFLAG = true; // 是否回填数据信息
+        this.FILLTEXTFLAG = ''; // 是否回填数据信息
 
         // 初始化event
         this.initEvent();
@@ -647,6 +647,7 @@ class Polygon extends Canvas {
             // 第几条线
             const index = currentChecked.index;
             const vertex = currentChecked.vertex;
+            
             let checkDotIndex = vertex + index;
             if (vertex == -1) {
                 // 说明不是个顶点
@@ -749,12 +750,14 @@ class Polygon extends Canvas {
         try {
             this.canvas.addEventListener('mousedown', event => {
                 const loc = windowToCanvas(event.clientX, event.clientY, this.canvas);
-                let checkedIndex = -1;
-                if (Object.keys(this.currentDot).length <= 0) {
+                
+                let checkedIndex =  this.checkDotInPath(this.multiPolygonInfo.coordinates, loc);
+                
+                if (Object.keys(this.currentDot).length <= 0  || checkedIndex == -1 ) {
                     // 说明当前点并不是在线上
-                    checkedIndex = this.checkDotInPath(this.multiPolygonInfo.coordinates, loc);
-                    this.checkedIndex = checkedIndex;
-                    if (checkedIndex == -1) {
+                    
+                    this.checkedIndex  = checkedIndex;
+                    if (checkedIndex == -1 || this.coordinate.length >0) {
                         // 证明没有面被选中
                         // 当成点存储
                         this.coordinate.push(loc);
@@ -772,18 +775,36 @@ class Polygon extends Canvas {
                             this.editPoints({ ...this.getBasePolygonParam(), currentChecked: currentDot });
                             this.canvas.addEventListener('mousemove', (event)=>{
                                 const { buttons } = event;
-                                if(buttons !=0 ){
+                                if(buttons !=0  && this.coordinate.length == 0){
                                     this.drawPolygonMousedownMoveEvent(event);
                                 }
                             });
                         } else {
                             //没有靠近鼠标点的线段 即鼠标点在平面中
-                            if(false){
-                                this.coordinate.push(loc);
-                            }
+                            
                             this.drawAllCheckedPath({ ...this.getBasePolygonParam(), checkedIndex: this.checkedIndex });
                         }
                     }
+                }else if(Object.keys(this.currentDot).length > 0){
+                    
+                        
+                        if(this.checkedIndex === checkedIndex) {
+                            if (this.currentDot.index > -1) {
+                                // 说明存在靠近鼠标点线段， 即需要点 线匹配
+                                this.checkedIndex = this.currentDot.checkedIndex;
+                                this.editPoints({ ...this.getBasePolygonParam(), currentChecked: this.currentDot });
+                                this.canvas.addEventListener('mousemove', (event)=>{
+                                    const { buttons } = event;
+                                    if(buttons !=0  && this.coordinate.length == 0){
+                                        this.drawPolygonMousedownMoveEvent(event);
+                                    }
+                                });
+                            } 
+                        }
+                        //没有靠近鼠标点的线段 即鼠标点在平面中
+                        this.checkedIndex = checkedIndex;
+                        this.drawAllCheckedPath({ ...this.getBasePolygonParam(), checkedIndex: this.checkedIndex });
+                        // this.currentDot ={};
                 }
             });
         } catch (e) {
@@ -818,10 +839,11 @@ class Polygon extends Canvas {
                 event.preventDefault();
                 if (coordinate.length > 0) {
                     // 说明是正在绘制新的图形
-                    if (checkedIndex <= -1) {
+                    if (this.checkedIndex <= -1) {
                         this.createMovePolygonPath({ ...this.getBasePolygonParam(), loc });
                     } else {
-                        // 绘制的是带孔图形 逻辑另外处理
+                        // 绘制的是存在选中态的图形
+                        this.drawAllCheckedPath({ ...this.getBasePolygonParam(), checkedIndex });
                     }
                 } else {
                     if (checkedIndex > -1) {
@@ -829,9 +851,12 @@ class Polygon extends Canvas {
                         if (currentChecked.index > -1) {
                             // 点在线附近
                             this.drawMouseMovePoints({ ...this.getBasePolygonParam(), currentChecked });
+                            this.currentDot = currentChecked ; // 当前移动点位置
                         } else {
                             // 点不在线附近  需要重新绘制图形
-                            this.drawAllCheckedPath({ ...this.getBasePolygonParam(), checkedIndex });
+                            if(this.currentDot){
+                                this.drawAllCheckedPath({ ...this.getBasePolygonParam(), checkedIndex });
+                            }
                         }
                     }
                     // 其余情况属于mouseDown中的mouseUp事件
