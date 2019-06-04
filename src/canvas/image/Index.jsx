@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 
-import  ImageCanvas from './imageCanvas'
-import styles from './index.less'
+import  ImageCanvas from './imageCanvas';
+import styles from './index.less';
 
 
 class ImageCanvasDemo extends Component {
@@ -12,7 +12,7 @@ class ImageCanvasDemo extends Component {
 
     componentDidMount() {
         new ImageCanvas({
-            url: './img/timg.jpeg',
+            url: require('./img/timg.jpeg'),
             id: 'canvas'
         });
     }
