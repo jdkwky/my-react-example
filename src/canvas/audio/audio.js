@@ -29,6 +29,8 @@ class Audio{
 
     }
 
+    // todo 数据处理问题放到webworker中执行
+
     // 通过文件获取音频数据
     getAudioByFile(id) {
         const _this = this;
