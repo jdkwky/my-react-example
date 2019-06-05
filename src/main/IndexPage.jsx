@@ -8,6 +8,7 @@ import Canvas from 'canvas/Canvas';
 import Event from 'test/event/Event';
 import ImageCanvasDemo from 'canvas/image/Index';
 import UtilDemo from 'utils/UtilDemo';
+import AudioDemo from 'canvas/audio/AudioDemo'
 
 
 import styles from './indexPage.less';
@@ -19,7 +20,8 @@ const keyMap = {
   canvas: { component: <Canvas /> ,breakdcrumb: 'canvas' , name: 'canvas画布'},
   event:{ component:<Event></Event>,breadcrumb:'events test' , name: 'react事件' } ,
   imageCanvas : { component: <ImageCanvasDemo /> , breakdcrumb: 'image canvas' , name: '显示图片画布' },
-  util: { component: <UtilDemo /> , breakdcrumb:'util demo', name:'工具类代码' }
+  util: { component: <UtilDemo /> , breakdcrumb:'util demo', name:'工具类代码' },
+  audioDemo: { component: <AudioDemo /> , breakdcrumb:'audio demo', name:'显示语音信息' }
 };
 class IndexPage extends Component {
   constructor(props) {
