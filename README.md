@@ -101,6 +101,10 @@ PATH = %NODE_PATH%\;%NODE_PATH%\node_modules;%NODE_PATH%\node_global;
 
 > 参考文档： https://juejin.im/post/5bdf0741e51d456b8e1d60be#%E4%BE%8B%E5%AD%90debug
 
+二、 webworker
+
+1. webworker postMessage向子worker传递数据时只能传递基本数据类型、数组、对象，不能传递 window、AudioBuffer、AudioContext等复杂数据结构
+
 
 
 
@@ -110,6 +114,8 @@ PATH = %NODE_PATH%\;%NODE_PATH%\node_modules;%NODE_PATH%\node_global;
 2. 音频绘制工具
 3. 图片放大缩小功能
 4. 增加一些常用的正则表达式
+5. TODO excel数据导出功能
+
 
 
 
