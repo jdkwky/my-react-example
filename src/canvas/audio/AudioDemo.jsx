@@ -13,6 +13,7 @@ class AudioDemo extends Component {
     componentDidMount() {
         new Audio({
             wrapId: 'audio',
+            // fileId: 'audioFile'
             url:'https://wavesurfer-js.org/example/split-channels/stereo.mp3'
         });
     }
@@ -20,7 +21,10 @@ class AudioDemo extends Component {
 
     render() {
         return (
-            <div className={styles.audio} id="audio"></div>
+            <div className={ styles.wrap }>
+                {/* <input type="file" name="" id="audioFile"/> */}
+                <div className={styles.audio} id="audio"></div>
+            </div>
         );
     }
 }

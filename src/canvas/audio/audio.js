@@ -24,8 +24,19 @@ class Audio{
         this.fileId = fileId;   // 如果是通过本地上传音频文件则需要知道input节点
         this.scale = scale;
         this.url = url;
-        this.getAudioByFile(this.fileId);
-        this.getAudioByXHR(url);
+        this.pageSize = 2;
+        this.pageNum =1;
+        this.realPageSize = this.pageSize * this.width;
+        this.originalData = null;
+        this.scrollLeft = 0;
+        this.finalScrollLeft = 0;
+        if(this.fileId){
+            this.getAudioByFile(this.fileId);
+        }
+        if(this.url){
+            this.getAudioByXHR(url);
+        }
+        this.initEvent();
 
     }
 
@@ -83,7 +94,9 @@ class Audio{
     setBuffer(buffer){
         this.buffer = buffer;
         this.duration = buffer.duration || 0 ;
-        const data = this.getDrawData(this.buffer, this.width, this.height,this.duration, this.secondsPerScreen, this.scale);
+        const originalData = this.getDrawData(this.buffer, this.width, this.height,this.duration, this.secondsPerScreen, this.scale);
+        this.originalData = originalData;
+        const data  = this.initPageData(originalData,this.pageSize,this.pageNum)
         this.draw(data, this.height)
     }
 
@@ -114,6 +127,32 @@ class Audio{
         return originalData;
     } 
 
+    initPageData(data){
+        this.$canvasDom.setAttribute('width', this.realPageSize);
+        const beginX = (this.pageNum -1) * this.realPageSize;
+        const endX = beginX + this.realPageSize +1;
+        const newData = data.slice(beginX,  endX );
+        return newData;
+    }
+    getPageData(data,direction){
+        let beginX = 0 ;
+        let endX = 0;
+        if(direction == 'r'){
+            beginX = this.realPageSize*(this.pageNum -1) + (this.pageSize -1) * this.width;
+            endX = beginX + this.realPageSize +1;
+        }else if (direction == 'l'){
+            if(this.pageNum > 1){
+                beginX = this.realPageSize*(this.pageNum -2) + (this.pageSize -1) * this.width;
+            }else if(this.pageNum == 1){
+                beginX =0;
+            }
+            endX = beginX + this.realPageSize;
+        }
+        const newData = data.slice(beginX,  endX );
+        return newData;
+    }
+
+
     analysisPeekValue(value, height){
         const p = 100;
         if(value != 0){
@@ -127,17 +166,74 @@ class Audio{
     } 
 
     
-    draw( arr , height){
+    draw( arr ){
+        this.clearCanvas();
         // todo  改变频谱颜色   
         for (var i = 0; i < arr.length; i++) {
             const rectHeight = arr[i];
             if (rectHeight > 0) {
-                this.context.fillRect(i * 1, height / 2 - rectHeight, 1, rectHeight);
+                this.context.fillRect(i * 1, this.height / 2 - rectHeight, 1, rectHeight);
             } else {
-                this.context.fillRect(i * 1, height / 2, 1, -rectHeight);
+                this.context.fillRect(i * 1, this.height / 2, 1, -rectHeight);
             }
         }
     } 
+
+    initEvent(){
+        this.$wrapDom.addEventListener('scroll',(e) =>{
+            this.handleWrapScroll(e);
+        });
+    }
+
+    handleWrapScroll(e){
+        const scrollLeft = this.$wrapDom.scrollLeft;
+        const threshold = this.width * 0.8;
+    
+        if(scrollLeft - this.scrollLeft >= 0){
+            // 向右滑动
+            const rightWidth = this.realPageSize*(this.pageNum -1) + (this.pageSize -1) * this.width;
+            this.scrollLeft = scrollLeft;
+            if(scrollLeft + threshold >= rightWidth  ){
+                // canvas绘制当前页和下一页
+                this.$wrapDom.style.paddingLeft = scrollLeft + 'px';
+                // this.$wrapDom.scrollTo(rightWidth,0);
+                const data = this.getPageData(this.originalData,'r');
+                if(data.length > 0){
+                    this.pageNum++;
+                    this.draw(data);
+                } 
+            }
+            this.finalScrollLeft = scrollLeft;
+        }else{
+            this.scrollLeft = scrollLeft;
+            const leftWidth = this.realPageSize*(this.pageNum -2) + (this.pageSize -1) * this.width;
+            const leftWidth1 = (this.pageSize -1) * this.width;
+            if( this.pageNum >1 && (leftWidth + threshold >= this.finalScrollLeft - scrollLeft)) {
+                // 向左滑动
+                this.$wrapDom.style.paddingLeft = (this.finalScrollLeft - scrollLeft)+ leftWidth + 'px';
+                
+                const data = this.getPageData(this.originalData,'l');
+                if(data.length > 0){
+                    this.pageNum--;
+                    this.draw(data);
+                }
+                this.finalScrollLeft = scrollLeft; 
+            }else if(this.pageNum  == 1 && (leftWidth1 + threshold >= this.finalScrollLeft - scrollLeft)){
+                this.$wrapDom.style.paddingLeft = 0;
+                
+                const data = this.getPageData(this.originalData,'l');
+                if(data.length > 0){
+                    this.draw(data);
+                }
+                this.finalScrollLeft = scrollLeft; 
+            }
+        }
+        
+    }
+
+    clearCanvas(){
+        this.context.clearRect(0,0,this.realPageSize, this.height);
+    }
 
     // todo  添加放大缩小
 

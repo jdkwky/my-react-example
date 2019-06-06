@@ -27,7 +27,7 @@ class IndexPage extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      menu: 'canvas' //默认是可编辑表格
+      menu: 'audioDemo' //默认是可编辑表格
     };
   }
 
