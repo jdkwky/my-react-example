@@ -1,3 +1,6 @@
+import audioWorker from './audioWorker'
+import webWorker from './webWorker'
+
 class Audio{
 
     // 绘制的线宽 1px
@@ -30,6 +33,8 @@ class Audio{
         this.originalData = null;
         this.scrollLeft = 0;
         this.finalScrollLeft = 0;
+
+        
         if(this.fileId){
             this.getAudioByFile(this.fileId);
         }
@@ -93,9 +98,21 @@ class Audio{
     // buffer 赋值
     setBuffer(buffer){
         this.buffer = buffer;
+        // const aWorker = new webWorker(audioWorker,'script');
+        // aWorker.onmessage(data => {
+        //     console.log("父进程接收的数据：", data);
+        // });
+        
+        // aWorker.errMsg(msg => {
+        //     console.log("worker线程报错：", msg);
+        // });
         this.duration = buffer.duration || 0 ;
         const originalData = this.getDrawData(this.buffer, this.width, this.height,this.duration, this.secondsPerScreen, this.scale);
         this.originalData = originalData;
+        // aWorker.postMessage({
+        //     url: this.url,
+        //     buffer: originalData
+        // });
         const data  = this.initPageData(originalData,this.pageSize,this.pageNum)
         this.draw(data, this.height)
     }
@@ -237,7 +254,7 @@ class Audio{
 
     // todo  添加放大缩小
 
-    // todo  增加分页
+    // todo  增加分页功能完善
 
     // todo  增加播放语音 暂停语音功能
 
