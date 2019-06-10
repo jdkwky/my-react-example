@@ -3,6 +3,7 @@
 # dependencies
 /node_modules/
 /public/*.js
+paclage-lock.json
 
 # testing
 /coverage
