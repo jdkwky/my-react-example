@@ -114,7 +114,7 @@ PATH = %NODE_PATH%\;%NODE_PATH%\node_modules;%NODE_PATH%\node_global;
 2. 音频绘制工具
 3. 图片放大缩小功能
 4. 增加一些常用的正则表达式
-5. TODO excel数据导出功能
+5. excel数据导出功能
 
 
 
