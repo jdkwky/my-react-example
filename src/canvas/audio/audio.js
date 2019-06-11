@@ -1,16 +1,18 @@
-import audioWorker from './audioWorker'
-import webWorker from './webWorker'
+import audioWorker from './audioWorker';
+import webWorker from './webWorker';
+import BaseEvent from 'utils/baseEvent';
 
-class Audio{
-
+class Audio extends BaseEvent{
     // 绘制的线宽 1px
-    constructor( params ){
+    constructor(params) {
+        super();
         const {
-            secondsPerScreen = 10 ,    // 每屏幕最多显示几秒音频信息
+            secondsPerScreen = 10, // 每屏幕最多显示几秒音频信息
             wrapId,
             fileId,
-            scale =1,
-            url
+            scale = 1,
+            url,
+            pagination = true
         } = params;
         this.$wrapDom = document.getElementById(wrapId);
         this.width = this.$wrapDom.offsetWidth || 0;
@@ -24,40 +26,38 @@ class Audio{
         this.buffer = null;
         this.duration = 0;
         this.secondsPerScreen = secondsPerScreen;
-        this.fileId = fileId;   // 如果是通过本地上传音频文件则需要知道input节点
+        this.fileId = fileId; // 如果是通过本地上传音频文件则需要知道input节点
         this.scale = scale;
         this.url = url;
-        this.pageSize = 2;
-        this.pageNum =1;
+        this.pageSize = 1;
+        this.pageNum = 1;
         this.realPageSize = this.pageSize * this.width;
         this.originalData = null;
         this.scrollLeft = 0;
         this.finalScrollLeft = 0;
+        this.pagination = pagination;
+        this.csource = null;
 
-        
-        if(this.fileId){
+        if (this.fileId) {
             this.getAudioByFile(this.fileId);
         }
-        if(this.url){
+        if (this.url) {
             this.getAudioByXHR(url);
         }
         this.initEvent();
-
     }
-
-    // todo 数据处理问题放到webworker中执行
 
     // 通过文件获取音频数据
     getAudioByFile(id) {
         const _this = this;
         // 通过element audio源获取数据  开始
-        const $fileDom = document.getElementById(id); 
-        if($fileDom){
+        const $fileDom = document.getElementById(id);
+        if ($fileDom) {
             $fileDom.onchange = function(value) {
                 var files = value.target.files;
                 const fr = new FileReader();
                 fr.onload = function(event) {
-                    _this.audioCtx.decodeAudioData(event.target.result).then(res=>{
+                    _this.audioCtx.decodeAudioData(event.target.result).then(res => {
                         _this.setBuffer(res);
                     });
                 };
@@ -77,7 +77,7 @@ class Audio{
 
         ajaxRequest.onload = function() {
             const audioData = ajaxRequest.response;
-            
+
             _this.audioCtx.decodeAudioData(
                 audioData,
                 function(buffer) {
@@ -90,102 +90,93 @@ class Audio{
         };
 
         ajaxRequest.send();
-        ajaxRequest.onerror = function(e){
+        ajaxRequest.onerror = function(e) {
             console.log('Error with get audio data', e);
-        }
+        };
         // 结束 通过ajax请求获取数据
     }
     // buffer 赋值
-    setBuffer(buffer){
+    setBuffer(buffer) {
         this.buffer = buffer;
-        // const aWorker = new webWorker(audioWorker,'script');
-        // aWorker.onmessage(data => {
-        //     console.log("父进程接收的数据：", data);
-        // });
-        
-        // aWorker.errMsg(msg => {
-        //     console.log("worker线程报错：", msg);
-        // });
-        this.duration = buffer.duration || 0 ;
-        const originalData = this.getDrawData(this.buffer, this.width, this.height,this.duration, this.secondsPerScreen, this.scale);
+
+        this.duration = buffer.duration || 0;
+        const originalData = this.getDrawData(
+            this.buffer,
+            this.width,
+            this.height,
+            this.duration,
+            this.secondsPerScreen,
+            this.scale
+        );
         this.originalData = originalData;
-        // aWorker.postMessage({
-        //     url: this.url,
-        //     buffer: originalData
-        // });
-        const data  = this.initPageData(originalData,this.pageSize,this.pageNum)
-        this.draw(data, this.height)
+
+        this.$canvasDom.setAttribute('width', originalData.length);
+        this.draw(originalData, this.height);
     }
 
-    getDrawData(buffer, width, height, duration, secondsPerScreen, scale){
-        const radioSeconds = duration * 1000 ; // ms
-        let realWidth = width * radioSeconds / (secondsPerScreen * 1000);
+    getDrawData(buffer, width, height, duration, secondsPerScreen, scale) {
+        const threshold = 10000;
+        const radioSeconds = duration * 1000; // ms
+        let realWidth = (width * radioSeconds) / (secondsPerScreen * 1000);
         let maxWidth = realWidth * scale;
         const copyMaxWidth = maxWidth;
         const minStep = buffer.getChannelData(0).length / maxWidth;
 
-        if(realWidth < width ){
+        if (realWidth < width) {
             realWidth = width;
-            maxWidth =  width * scale;
+            maxWidth = width * scale;
         }
 
         const originalData = new Float32Array(maxWidth);
         for (let i = 0; i < maxWidth; i++) {
-            if (typeof originalData[ i ] && i < copyMaxWidth) {
+            if (typeof originalData[i] && i < copyMaxWidth) {
                 let sum = 0;
                 for (let j = 0; j < buffer.numberOfChannels; j++) {
-                    sum += parseFloat(buffer.getChannelData(j)[ parseInt(i * minStep) ]);
+                    sum += parseFloat(buffer.getChannelData(j)[parseInt(i * minStep)]);
                 }
-                originalData[ i ] = this.analysisPeekValue(sum,height);
+                originalData[i] = this.analysisPeekValue(sum, height);
             } else {
-                originalData[ i ] = 0;
+                originalData[i] = 0;
             }
+        }
+        
+        if(originalData.length > threshold){
+            const newOriginalData = new Float32Array(threshold);
+            const length = originalData.length;
+            const step = Math.floor(length / threshold);
+            for(let i = 0 ; i <threshold; i++){
+                if(typeof originalData[i] && i < length){
+                    newOriginalData[i] = originalData[i*step]
+                }
+            }
+            return newOriginalData;
         }
         return originalData;
-    } 
+    }
 
-    initPageData(data){
+    initPageData(data) {
         this.$canvasDom.setAttribute('width', this.realPageSize);
-        const beginX = (this.pageNum -1) * this.realPageSize;
-        const endX = beginX + this.realPageSize +1;
-        const newData = data.slice(beginX,  endX );
-        return newData;
-    }
-    getPageData(data,direction){
-        let beginX = 0 ;
-        let endX = 0;
-        if(direction == 'r'){
-            beginX = this.realPageSize*(this.pageNum -1) + (this.pageSize -1) * this.width;
-            endX = beginX + this.realPageSize +1;
-        }else if (direction == 'l'){
-            if(this.pageNum > 1){
-                beginX = this.realPageSize*(this.pageNum -2) + (this.pageSize -1) * this.width;
-            }else if(this.pageNum == 1){
-                beginX =0;
-            }
-            endX = beginX + this.realPageSize;
-        }
-        const newData = data.slice(beginX,  endX );
+        const beginX = (this.pageNum - 1) * this.realPageSize;
+        const endX = beginX + this.realPageSize + 1;
+        const newData = data.slice(beginX, endX);
         return newData;
     }
 
-
-    analysisPeekValue(value, height){
+    analysisPeekValue(value, height) {
         const p = 100;
-        if(value != 0){
-            if( Math.abs(p) * value  > (height / 2)){
-                return (height / 2) * (value / Math.abs(value))
-            }else{
-                return value * p 
+        if (value != 0) {
+            if (Math.abs(p) * value > height / 2) {
+                return (height / 2) * (value / Math.abs(value));
+            } else {
+                return value * p;
             }
         }
         return 0;
-    } 
+    }
 
-    
-    draw( arr ){
+    draw(arr) {
         this.clearCanvas();
-        // todo  改变频谱颜色   
+        // todo  改变频谱颜色
         for (var i = 0; i < arr.length; i++) {
             const rectHeight = arr[i];
             if (rectHeight > 0) {
@@ -194,73 +185,31 @@ class Audio{
                 this.context.fillRect(i * 1, this.height / 2, 1, -rectHeight);
             }
         }
-    } 
+        this.emit('audioDrawEnd');
+    }
 
-    initEvent(){
-        this.$wrapDom.addEventListener('scroll',(e) =>{
-            this.handleWrapScroll(e);
+    initEvent() {
+        this.$wrapDom.addEventListener('scroll', e => {
+            
         });
     }
 
-    handleWrapScroll(e){
-        const scrollLeft = this.$wrapDom.scrollLeft;
-        const threshold = this.width * 0.8;
     
-        if(scrollLeft - this.scrollLeft >= 0){
-            // 向右滑动
-            const rightWidth = this.realPageSize*(this.pageNum -1) + (this.pageSize -1) * this.width;
-            this.scrollLeft = scrollLeft;
-            if(scrollLeft + threshold >= rightWidth  ){
-                // canvas绘制当前页和下一页
-                this.$wrapDom.style.paddingLeft = scrollLeft + 'px';
-                // this.$wrapDom.scrollTo(rightWidth,0);
-                const data = this.getPageData(this.originalData,'r');
-                if(data.length > 0){
-                    this.pageNum++;
-                    this.draw(data);
-                } 
-            }
-            this.finalScrollLeft = scrollLeft;
-        }else{
-            this.scrollLeft = scrollLeft;
-            const leftWidth = this.realPageSize*(this.pageNum -2) + (this.pageSize -1) * this.width;
-            const leftWidth1 = (this.pageSize -1) * this.width;
-            if( this.pageNum >1 && (leftWidth + threshold >= this.finalScrollLeft - scrollLeft)) {
-                // 向左滑动
-                this.$wrapDom.style.paddingLeft = (this.finalScrollLeft - scrollLeft)+ leftWidth + 'px';
-                
-                const data = this.getPageData(this.originalData,'l');
-                if(data.length > 0){
-                    this.pageNum--;
-                    this.draw(data);
-                }
-                this.finalScrollLeft = scrollLeft; 
-            }else if(this.pageNum  == 1 && (leftWidth1 + threshold >= this.finalScrollLeft - scrollLeft)){
-                this.$wrapDom.style.paddingLeft = 0;
-                
-                const data = this.getPageData(this.originalData,'l');
-                if(data.length > 0){
-                    this.draw(data);
-                }
-                this.finalScrollLeft = scrollLeft; 
-            }
-        }
-        
+
+    clearCanvas() {
+        this.context.clearRect(0, 0, this.realPageSize, this.height);
     }
 
-    clearCanvas(){
-        this.context.clearRect(0,0,this.realPageSize, this.height);
+    playAudio(){
+        this.csource = this.audioCtx.createBufferSource();
+        this.csource.buffer = this.buffer;
+        this.csource.connect(this.audioCtx.destination);
+        this.csource.start(0);
     }
 
-    // todo  添加放大缩小
-
-    // todo  增加分页功能完善
-
-    // todo  增加播放语音 暂停语音功能
-
-
-
+    endPlayAudio(){
+        this.csource.stop();
+    }
 }
-
 
 export default Audio;
