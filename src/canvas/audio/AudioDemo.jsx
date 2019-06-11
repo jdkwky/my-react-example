@@ -75,10 +75,10 @@ class AudioDemo extends Component {
     render() {
         return (
             <div className={styles.wrap}>
-                { this.state.audio1DrawEnd? <Icon type="sound" onClick={this.handleAudio1Click} /> :'' }
+                { this.state.audio1DrawEnd? <Icon type={ !this.state.audio1Play?'sound':'pause' } onClick={this.handleAudio1Click} /> :'' }
                 <div className={styles.audio} id="audio" />
                 <input type="file" name="" id="audioFile" />
-                { this.state.audio2DrawEnd ? <Icon type="sound" onClick={this.handleAudio2Click} /> :'' }
+                { this.state.audio2DrawEnd ? <Icon type={ !this.state.audio1Play? 'sound' : 'pause'} onClick={this.handleAudio2Click} /> :'' }
                 <div className={styles.audio} id="audio1" />
             </div>
         );
