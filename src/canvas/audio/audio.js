@@ -21,11 +21,11 @@ class Audio extends BaseEvent {
 
         this.$wrapDom = document.getElementById(wrapId);
         this.width = this.$wrapDom.offsetWidth || 0;
-        this.height = this.$wrapDom.offsetHeight || 0;
+        this.height = this.$wrapDom.offsetHeight ?  this.$wrapDom.offsetHeight - axisHeight - scrollHeight : 0;
 
         this.$canvasDom = document.createElement('canvas');
         this.$canvasDom.setAttribute('width', this.width);
-        this.$canvasDom.setAttribute('height', this.height - axisHeight - scrollHeight);
+        this.$canvasDom.setAttribute('height', this.height );
         this.$wrapDom.appendChild(this.$canvasDom);
         this.context = this.$canvasDom.getContext('2d');
 
