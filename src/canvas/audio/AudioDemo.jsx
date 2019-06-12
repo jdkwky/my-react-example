@@ -20,16 +20,11 @@ class AudioDemo extends Component {
     componentDidMount() {
         const audio1 = new Audio({
             wrapId: 'audio',
-            // fileId: 'audioFile'
-            url: 'https://wavesurfer-js.org/example/split-channels/stereo.mp3',
-            play: false
+            url: 'https://wavesurfer-js.org/example/split-channels/stereo.mp3'
         });
         const audio2 = new Audio({
             wrapId: 'audio1',
-            pagination: false,
             fileId: 'audioFile',
-            play: false
-            // url:'https://wavesurfer-js.org/example/split-channels/stereo.mp3'
         });
         audio1.on('audioDrawEnd', ()=>{
             this.setState((state, props)=>({
@@ -76,6 +71,7 @@ class AudioDemo extends Component {
         return (
             <div className={styles.wrap}>
                 { this.state.audio1DrawEnd? <Icon type={ !this.state.audio1Play?'sound':'pause' } onClick={this.handleAudio1Click} /> :'' }
+                <span>总时长: { this.state.audio1&&this.state.audio1.duration }S</span>
                 <div className={styles.audio} id="audio" />
                 <input type="file" name="" id="audioFile" />
                 { this.state.audio2DrawEnd ? <Icon type={ !this.state.audio1Play? 'sound' : 'pause'} onClick={this.handleAudio2Click} /> :'' }

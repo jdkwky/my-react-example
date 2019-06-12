@@ -2,7 +2,7 @@ import audioWorker from './audioWorker';
 import webWorker from './webWorker';
 import BaseEvent from 'utils/baseEvent';
 
-class Audio extends BaseEvent{
+class Audio extends BaseEvent {
     // 绘制的线宽 1px
     constructor(params) {
         super();
@@ -14,17 +14,32 @@ class Audio extends BaseEvent{
             url,
             pagination = true
         } = params;
+        const axisHeight = 30;
+        const scrollHeight = 8;
+
+        this.axisHeight = axisHeight;
+
         this.$wrapDom = document.getElementById(wrapId);
         this.width = this.$wrapDom.offsetWidth || 0;
         this.height = this.$wrapDom.offsetHeight || 0;
+
         this.$canvasDom = document.createElement('canvas');
         this.$canvasDom.setAttribute('width', this.width);
-        this.$canvasDom.setAttribute('height', this.height);
+        this.$canvasDom.setAttribute('height', this.height - axisHeight - scrollHeight);
         this.$wrapDom.appendChild(this.$canvasDom);
         this.context = this.$canvasDom.getContext('2d');
+
+        this.$axisCanvasDom = document.createElement('canvas');
+        this.$axisCanvasDom.setAttribute('width', this.width);
+        this.$axisCanvasDom.setAttribute('height', axisHeight);
+        this.$wrapDom.appendChild(this.$axisCanvasDom);
+        this.axisContext = this.$axisCanvasDom.getContext('2d');
+
         this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         this.buffer = null;
         this.duration = 0;
+        this.csource = null;
+
         this.secondsPerScreen = secondsPerScreen;
         this.fileId = fileId; // 如果是通过本地上传音频文件则需要知道input节点
         this.scale = scale;
@@ -33,10 +48,6 @@ class Audio extends BaseEvent{
         this.pageNum = 1;
         this.realPageSize = this.pageSize * this.width;
         this.originalData = null;
-        this.scrollLeft = 0;
-        this.finalScrollLeft = 0;
-        this.pagination = pagination;
-        this.csource = null;
 
         if (this.fileId) {
             this.getAudioByFile(this.fileId);
@@ -110,10 +121,91 @@ class Audio extends BaseEvent{
         );
         this.originalData = originalData;
 
-        this.$canvasDom.setAttribute('width', originalData.length);
+        this.setCanvasWidth(originalData.length);
         this.draw(originalData, this.height);
     }
 
+    /**
+     *  解析数据成功之后给canvas赋值
+     *
+     * @param {*} width
+     * @memberof Audio
+     */
+    setCanvasWidth(width) {
+        this.$axisCanvasDom.setAttribute('width', width);
+        this.$canvasDom.setAttribute('width', width);
+        const totalSeconds = this.duration;
+        const perPx = parseFloat(width / totalSeconds) / 10;
+        this.drawAxis(this.axisContext, perPx, this.axisHeight * 0.4, width);
+    }
+
+    /**
+     * 绘制时间
+     *
+     * @param {*} context
+     * @param {*} step
+     * @param {*} height
+     * @param {*} length 最大长度
+     * @memberof Audio
+     */
+    drawAxis(context, step, height, length) {
+        const f = 5;
+        let threshold = 5;
+
+        if (step < 10) {
+            threshold = 100;
+        }
+        const _minus = height * 0.6;
+
+        context.save();
+
+        context.beginPath();
+
+        // start draw line
+        context.moveTo(0, height);
+        context.lineTo(length, height);
+        //  end draw line
+
+        context.moveTo(0, 0);
+        context.lineTo(0, height);
+        context.fillText(0 + 's', 0, height + 10);
+
+        let index = 0;
+
+        for (let i = step; i < length; i = i + step) {
+            index++;
+            if (index % threshold === 0) {
+                context.moveTo(i, 0);
+                context.fillText(index * 0.1 + 's', i - step * 0.5, height + 10);
+            } else {
+                if (threshold > 5) {
+                    if (index % (threshold / f) == 0 && threshold / f > 1) {
+                        context.moveTo(i, _minus);
+                    }
+                } else {
+                    context.moveTo(i, _minus);
+                }
+            }
+            context.lineTo(i, height);
+        }
+        context.lineWidth = 1;
+        // context.strokeStyle = '';
+        context.stroke();
+        context.restore();
+    }
+
+    /**
+     * 根据解析出的音频数据和最大canvas长度抽取数据
+     *
+     * @param {*} buffer
+     * @param {*} width
+     * @param {*} height
+     * @param {*} duration
+     * @param {*} secondsPerScreen
+     * @param {*} scale
+     * @returns
+     * @memberof Audio
+     */
     getDrawData(buffer, width, height, duration, secondsPerScreen, scale) {
         const threshold = 10000;
         const radioSeconds = duration * 1000; // ms
@@ -139,14 +231,14 @@ class Audio extends BaseEvent{
                 originalData[i] = 0;
             }
         }
-        
-        if(originalData.length > threshold){
+
+        if (originalData.length > threshold) {
             const newOriginalData = new Float32Array(threshold);
             const length = originalData.length;
             const step = Math.floor(length / threshold);
-            for(let i = 0 ; i <threshold; i++){
-                if(typeof originalData[i] && i < length){
-                    newOriginalData[i] = originalData[i*step]
+            for (let i = 0; i < threshold; i++) {
+                if (typeof originalData[i] && i < length) {
+                    newOriginalData[i] = originalData[i * step];
                 }
             }
             return newOriginalData;
@@ -154,14 +246,14 @@ class Audio extends BaseEvent{
         return originalData;
     }
 
-    initPageData(data) {
-        this.$canvasDom.setAttribute('width', this.realPageSize);
-        const beginX = (this.pageNum - 1) * this.realPageSize;
-        const endX = beginX + this.realPageSize + 1;
-        const newData = data.slice(beginX, endX);
-        return newData;
-    }
-
+    /**
+     * 格式化音频数据峰值
+     *
+     * @param {*} value
+     * @param {*} height
+     * @returns
+     * @memberof Audio
+     */
     analysisPeekValue(value, height) {
         const p = 100;
         if (value != 0) {
@@ -174,6 +266,12 @@ class Audio extends BaseEvent{
         return 0;
     }
 
+    /**
+     * 将音频数据绘制出来
+     *
+     * @param {*} arr
+     * @memberof Audio
+     */
     draw(arr) {
         this.clearCanvas();
         // todo  改变频谱颜色
@@ -189,25 +287,36 @@ class Audio extends BaseEvent{
     }
 
     initEvent() {
-        this.$wrapDom.addEventListener('scroll', e => {
-            
-        });
+        this.$wrapDom.addEventListener('scroll', e => {});
     }
 
-    
-
+    /**
+     * 清空canvas
+     *
+     * @memberof Audio
+     */
     clearCanvas() {
         this.context.clearRect(0, 0, this.realPageSize, this.height);
     }
 
-    playAudio(){
+    /**
+     * 音频播放
+     *
+     * @memberof Audio
+     */
+    playAudio() {
         this.csource = this.audioCtx.createBufferSource();
         this.csource.buffer = this.buffer;
         this.csource.connect(this.audioCtx.destination);
         this.csource.start(0);
     }
 
-    endPlayAudio(){
+    /**
+     *音频停止播放
+     *
+     * @memberof Audio
+     */
+    endPlayAudio() {
         this.csource.stop();
     }
 }
