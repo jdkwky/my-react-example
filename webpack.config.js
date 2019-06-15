@@ -23,16 +23,9 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /(\.jsx|\.js)?$/,
+        test: /(\.jsx|\.js)$/,
         use: {
           loader: "babel-loader",
-          options: {
-            presets: ["env", "react", "es2015", "stage-0"],
-            plugins: [
-              ["import", { libraryName: "antd", style: "css" }],
-              "transform-class-properties"
-            ]
-          }
         },
         exclude: /node_modules/
       },
@@ -51,9 +44,6 @@ module.exports = {
           },
           {
             loader: "less-loader"
-          },
-          {
-            loader: "postcss-loader"
           }
         ],
         exclude: /node_modules/ //那些文件需要用上述loader
@@ -81,10 +71,6 @@ module.exports = {
                   }
               }
           ]
-      },
-      {
-        test: /\.json$/,
-        loader: 'json-loader'
       }
     ]
   },
@@ -104,7 +90,7 @@ module.exports = {
   plugins: [
     new webpack.BannerPlugin("版权所有，翻版必究"),
     new webpack.optimize.OccurrenceOrderPlugin(),
-    new webpack.optimize.UglifyJsPlugin(),
+    // new webpack.optimize.UglifyJsPlugin(),
     new ExtractTextPlugin("style.css")
   ]
 };
