@@ -1,12 +1,19 @@
+const path = require('path');
 const webpack = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const ExtractTextPlugin = require("extract-text-webpack-plugin");
+
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer')
+    .BundleAnalyzerPlugin;
+
 module.exports = {
   devtool: "eval-source-map",
-  entry: { bundle: __dirname + "/src/index.js" },
+  entry: { bundle: ['@babel/polyfill', __dirname + "/src/index.js"] },
   output: {
     path: __dirname + "/public",
-    filename: "[name].js"
+    filename: "[name]-[chunkHash:5].js"
   },
   devServer: {
     contentBase: "./public",
@@ -74,6 +81,11 @@ module.exports = {
       }
     ]
   },
+  optimization: {
+    splitChunks: {
+        chunks:'all'
+    }
+  },
 
   resolve: {
     extensions: [".js", ".jsx"],
@@ -84,14 +96,30 @@ module.exports = {
       waterfall: __dirname + "/src/waterfall",
       canvas: __dirname + "/src/canvas",
       test: __dirname + "/src/test",
-      utils: __dirname + "/src/utils"
+      utils: __dirname + "/src/utils",
+      demo: __dirname + "/src/demo"
     }
   },
   plugins: [
     new webpack.BannerPlugin("版权所有，翻版必究"),
     new webpack.optimize.OccurrenceOrderPlugin(),
     // new webpack.optimize.UglifyJsPlugin(),
-    new ExtractTextPlugin("style.css")
+    new ExtractTextPlugin("style.css"),
+    new CleanWebpackPlugin({
+            root: __dirname + "/public",
+            cleanStaleWebpackAssets: false,
+            // exclude: ['assets'],
+            verbose: true // Write logs to console.
+        }),
+
+        new HtmlWebpackPlugin({
+            filename:  __dirname + "/public/index.html",
+            template: path.join(__dirname, 'src/index.html'),
+            title: 'my-react-example',
+            inject: true
+        }),
+        new BundleAnalyzerPlugin(),
+
   ]
 };
 // __dirname+'/js/newFeatureofEs6.js',__dirname+'/js/iteratorDemo.js',__dirname+'/js/test.js'

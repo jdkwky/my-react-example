@@ -45,6 +45,11 @@ class AudioDemo extends Component {
     
     }
 
+    componentWillUnmount() {
+        this.state.audio1.remove('audioDrawEnd');
+        this.state.audio2.remove('audioDrawEnd');
+    }
+
     handleAudio1Click = () => {
         if(!this.state.audio1Play){
             this.state.audio1.playAudio();

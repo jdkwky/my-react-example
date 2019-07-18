@@ -36,6 +36,8 @@ class Audio extends BaseEvent {
         this.axisContext = this.$axisCanvasDom.getContext('2d');
 
         this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        this.analyserNode = this.audioCtx.createAnalyser();
+        
         this.buffer = null;
         this.duration = 0;
         this.csource = null;
@@ -108,6 +110,11 @@ class Audio extends BaseEvent {
     }
     // buffer 赋值
     setBuffer(buffer) {
+        
+        
+
+
+
         this.buffer = buffer;
 
         this.duration = buffer.duration || 0;
@@ -305,10 +312,36 @@ class Audio extends BaseEvent {
      * @memberof Audio
      */
     playAudio() {
+
+        
+
         this.csource = this.audioCtx.createBufferSource();
         this.csource.buffer = this.buffer;
-        this.csource.connect(this.audioCtx.destination);
+        this.analyserNode.fftSize = 256;
+        this.csource.connect(this.analyserNode);
+        this.analyserNode.connect(this.audioCtx.destination);
         this.csource.start(0);
+
+        const array = new Float32Array(this.analyserNode.frequencyBinCount); 
+        this.analyserNode.getFloatFrequencyData(array)
+        
+        console.log('===========================');
+        console.log('this.analyserNode', this.analyserNode,array);
+        console.log('===========================');
+        var time = setInterval(() => {
+            const { currentTime } = this.analyserNode.context || {};
+            
+            if(currentTime >= this.duration){
+                clearInterval(time);
+                return ;
+            }
+            this.analyserNode.getFloatFrequencyData(array)
+            console.log('===========================');
+            console.log('this.analyserNode', this.analyserNode,array);
+            console.log('===========================');
+        }, 1000);
+        
+
     }
 
     /**
