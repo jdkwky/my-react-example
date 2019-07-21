@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import styles from './canvas.less';
 import { Polygon } from './common';
+import Rect from './common/Rect'
 
 class Draw extends Component {
     constructor(props) {
@@ -9,7 +10,7 @@ class Draw extends Component {
     }
 
     componentDidMount() {
-        const p = new Polygon();
+        const p = new Rect();
         p.mounted('canvas');
     }
 

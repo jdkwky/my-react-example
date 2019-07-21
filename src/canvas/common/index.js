@@ -1,8 +1,10 @@
 import { calLineLen, windowToCanvas, judgePointInImg, getDurationPoints } from './utils/index';
 import { message } from 'antd';
+import BaseEvent from 'utils/baseEvent';
 
-class Canvas {
+class Canvas extends BaseEvent {
     constructor(width = 2000, height = 700) {
+        super();
         const canvas = document.createElement('canvas');
         canvas.width = width;
         canvas.height = height;
@@ -13,6 +15,14 @@ class Canvas {
         const $canvasWrap = document.getElementById(id);
         $canvasWrap.appendChild(this.canvas);
         return this;
+    }
+
+    windowToCanvas(x, y) {
+        const bbox = this.canvas.getBoundingClientRect(); // 获取canvas元素的边界框
+        return {
+            x: x - bbox.left * (this.canvas.width / bbox.width),
+            y: y - bbox.top * (this.canvas.height / bbox.height)
+        };
     }
     /**
      * 清空画布公共方法
