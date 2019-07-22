@@ -4,6 +4,9 @@ import BaseEvent from 'utils/baseEvent';
 
 class Canvas extends BaseEvent {
     constructor(width = 2000, height = 700) {
+        console.log('===========================');
+        console.log('props canvas',width,height);
+        console.log('===========================');
         super();
         const canvas = document.createElement('canvas');
         canvas.width = width;

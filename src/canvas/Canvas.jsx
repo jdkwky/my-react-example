@@ -10,7 +10,7 @@ class Draw extends Component {
     }
 
     componentDidMount() {
-        const p = new Rect();
+        const p = new Rect(600, 500);
         p.mounted('canvas');
     }
 
