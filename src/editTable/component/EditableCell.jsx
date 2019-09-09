@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import styles from './editableCell.less';
 import classNames from 'classnames';
 import { Icon, Popover } from 'antd';
+console.log('editTableCell  ');
 export default class EditTableCell extends React.Component {
   static propTypes = {
     isDelete: PropTypes.bool, // 判断是否能删除
@@ -29,9 +30,9 @@ export default class EditTableCell extends React.Component {
     };
   }
 
-  componentDidMount() {}
+  componentDidMount() { }
 
-  componentWillUnmount() {}
+  componentWillUnmount() { }
 
   handleEditAreaChange = (value, onChange) => {
     onChange && onChange(value);
@@ -121,8 +122,8 @@ export default class EditTableCell extends React.Component {
                 {isPopDelete ? (
                   <Icon type="close" className={styles.popDeleteIcon} onClick={this.handlePopOverDelete} />
                 ) : (
-                  ''
-                )}
+                    ''
+                  )}
                 {editArea}
               </div>
             }
@@ -137,13 +138,13 @@ export default class EditTableCell extends React.Component {
                 {descArea}
               </div>
             ) : (
-              <div
-                className={`${styles.placeholder} text-rows-two`}
-                onClick={this.handleEditClick}
-              >
-                {placeholder}
-              </div>
-            )}
+                <div
+                  className={`${styles.placeholder} text-rows-two`}
+                  onClick={this.handleEditClick}
+                >
+                  {placeholder}
+                </div>
+              )}
           </Popover>
         );
       }
@@ -189,13 +190,13 @@ export default class EditTableCell extends React.Component {
           {descArea}
         </div>
       ) : (
-        <div
-          className={`${styles.placeholder} text-rows-two`}
-          onClick={this.handleEditClick}
-        >
-          {placeholder}
-        </div>
-      );
+          <div
+            className={`${styles.placeholder} text-rows-two`}
+            onClick={this.handleEditClick}
+          >
+            {placeholder}
+          </div>
+        );
     }
     return descRender;
   };

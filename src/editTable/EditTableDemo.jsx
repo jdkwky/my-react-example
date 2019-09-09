@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import EditTable from './component/EditTable';
 import EditableCell from './component/EditableCell';
+import { hot } from 'react-hot-loader/root';
 
 class EditTableDemo extends Component {
   constructor(props) {
@@ -109,4 +110,4 @@ class EditTableDemo extends Component {
   }
 }
 
-export default EditTableDemo;
+export default hot(EditTableDemo);
